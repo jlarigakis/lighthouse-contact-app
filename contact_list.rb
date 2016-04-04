@@ -15,43 +15,34 @@ class ContactList
 
   @@commands = {
     new: Command.new("Create a new contact") do |name, email|
-      newContact(name, email)
+      (Contact.create(name, email) && "Created contact #{name}.") ||
+        "Contact creation failed."
     end,
     list: Command.new("List all contacts") do
-      listContacts 
+      contacts = Contact.all
+      return "No contacts found." if contacts.empty? 
+      while contacts.length > 5 do
+        puts contacts.shift(5)
+        puts "[ <Enter> to continue: ]"
+        gets
+      end
+      contacts
     end,
-    show: Command.new("Show a contact") do |name|
-      showContact(name)
+    show: Command.new("Show a contact") do |id|
+      Contact.find(id.to_i) || "Contact #{id} not found."
     end,
     search: Command.new("Search contacts") do |contact|
-      searchContacts(contact)
+      Contact.search(contact) || "No matching contact found."
     end
   }
     
   @@contacts = []
 
   class << self
-    def newContact(name, email)
-      # @@contacts << Contact.new(name, email)
-      "new contact" #TODO
-    end
-
-    def listContacts
-      # @@contacts
-      "listing all contacts" #TODO
-    end
-
-    def showContact(name)
-      "showing contact #{name}" #TODO
-    end
-
-    def searchContacts(contact)
-      "Searching contacts for #{contact}!" #TODO
-    end
-
-    def run
-      cmd = ARGV.shift&.to_sym
-      puts @@commands[cmd]&.run(*ARGV) || help
+    def run(my_argv=ARGV)
+      cmd = my_argv.shift&.to_sym
+      cmd_args = my_argv
+      puts @@commands[cmd]&.run(*cmd_args) || help
     end
 
     def help
@@ -64,5 +55,5 @@ class ContactList
   end
 end
 
-ARGV << "show" << "joe"
-ContactList.run
+# ContactList.run(["new", "Jason", "jlarigakis@gmail.com"])
+ContactList.run "search Jas".split
