@@ -54,6 +54,3 @@ class ContactList
     end
   end
 end
-
-# ContactList.run(["new", "Jason", "jlarigakis@gmail.com"])
-ContactList.run "search Jas".split
